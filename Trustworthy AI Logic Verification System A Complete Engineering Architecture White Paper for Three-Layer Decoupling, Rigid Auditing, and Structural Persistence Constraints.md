@@ -188,9 +188,7 @@ To prevent divergence between micro-level gradient smoothing and macro-level log
 1. Offline train a lightweight **paradox discriminator** (based on RoBERTa or LLaMA-7B) on annotated corpora to learn the indicator function $\mathbb{I}_{\text{EAV\_paradox}(t)}$.
 2. During foundation model training, freeze the discriminator parameters and use its outputs solely as a signal source for the loss function.
 3. Define the loss function as:
-   $$
-   \mathcal{L}_{\text{logic\_align}} = \frac{1}{T} \sum_{t} \text{Disc}_{\text{paradox}}(h_t) \cdot \min(M, \max(0, \tau - C_t))
-   $$
+   $\mathcal{L}_{\text{logic\_align}} = \frac{1}{T} \sum_{t} \text{Disc}_{\text{paradox}}(h_t) \cdot \min(M, \max(0, \tau - C_t))$
    where $M$ is the penalty upper bound (recommended $M=1.0$) to prevent gradient explosion.
 
 **Progressive Curriculum Learning**: Apply macro-alignment constraints in stages during training:
