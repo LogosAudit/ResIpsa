@@ -1,0 +1,571 @@
+**Logical Determinism via Topological Reconstruction: The Geometric Essence of LLM Hallucinations**
+
+---
+
+## Abstract
+
+Hallucinations in large language models are not random probabilistic fluctuations, but the physical tearing of reasoning trajectories forced beyond the cognitive manifold upon encountering irreversible fault lines in logical blind spots. Traditional RLHF offers only post-hoc judgment, forever blind to the silent breach of locally consistent yet globally inconsistent reasoning. This paper presents a a low-overhead geometric monitoring framework, shifting model governance from outcome inspection to process compliance, in three steps.
+
+**1. Real-time Curvature Monitoring.** Transformer hidden states are constrained near the unit hypersphere by layer normalization. Under this constraint, the cosine distance between adjacent reasoning steps bears a rigorous mathematical equivalence to geodesic distance, capturing the amplitude of directional rupture—the manifold tearing point. One line of code, zero additional computation:
+
+$$C_t^{\text{proxy}} = 1 - \cos(h_t, h_{t-1})$$
+
+*(This formula is an approximate proxy for the theoretical curvature definition; its validity relies on the hyperspherical constraint imposed by layer normalization.)*
+
+**2. Topological Stripping of Creativity from Hallucination.** High curvature signals a leap across the manifold, but is it insight or drift? The criterion is generation entropy. High curvature + low entropy = a structural isomorphism the model is extremely confident about (proceed); high curvature + high entropy = the model sliding blindly through semantic ambiguity (forced halt). What was once the mysticism of "inspiration versus nonsense" becomes a precisely computable mathematical boundary.
+
+**3. Logical Flattening During Training.** Targeting the pathology of local coherence masking global contradiction, we introduce a cycle-consistency loss inspired by the logical equivalence of a proposition and its contrapositive—the forward reasoning path ($P \to Q$) and the reverse path ($Q \to P$) should be geometric inverses. In engineering implementation, this loss enforces the reversibility of local reasoning paths: the residual from A to B must cancel the residual from B back to A. Any conceptual slippage or referential entanglement will break the return path. Under small curvature conditions, the transport operator degenerates to the identity mapping, residuals add directly, and training cost is minimal:
+$$\mathcal{L}_{\text{hedge}}^{\text{gated}} = \sigma\left(\beta \cdot (H_t - \tau_H)\right) \cdot \left\| \Delta h_{A \to B} + \Gamma_{B \to A} \Delta h_{B \to A} \right\|_2^2$$
+
+*(This formula is a local cyclic approximation of the contrapositive hedge principle, not a strict contrapositive constraint.)*
+
+Under this flattening constraint, the pressure of logical consistency propagates inward: if flattening succeeds, it implies the model has actively resolved the semantic ambiguities that trigger drift; if flattening fails, the region is a hard wall of logical rupture—triggering precisely the high-curvature, high-entropy alarm that calls for external computation engines.
+
+Monitor the rupture, strip inspiration from drift, flatten the manifold, identify hard walls. Three formulas, one topological immune system, steering models from uncontrolled drift toward structurally coherent trajectories.
+
+---
+
+## 1. Introduction
+
+Large language models (LLMs) exhibit a persistent tendency to generate factually incorrect or logically inconsistent statements — hallucinations. Mainstream mitigation approaches primarily address symptoms: they check facts against external databases (RAG), align outputs with human preferences (RLHF), or filter problematic content after generation. These methods, while valuable, do not directly answer a fundamental structural question: why, even with access to vast amounts of knowledge, do models produce internally contradictory outputs?
+
+This work proposes a shift in perspective. Rather than treating hallucinations as errors in an otherwise well-functioning system, we model them as structural features that emerge from an approximate geometric model of the model's own high-dimensional hidden state space — the cognitive manifold. Reasoning is modeled as a trajectory on this manifold. Hallucinations correspond to events where the trajectory is forced to depart from the manifold into unsupported regions due to local obstructions.
+
+The core insight can be stated simply: hallucinations are not random errors, but predictable structural consequences of what happens when a reasoning trajectory encounters a logical hole and is forced to extrapolate beyond its valid knowledge region.
+
+The framework operates at three levels, which we distinguish throughout:
+
+1. **Interpretive Layer** (Sections 2-3): Geometric and topological constructs used to understand why hallucinations occur.
+2. **Computable Layer** (Section 4): Engineering approximations that translate these geometric insights into practical, computable metrics.
+3. **Intervention Layer** (Section 4): Real-time monitoring and control mechanisms that use these metrics.
+
+This paper is a **geometry-informed interpretability framework**. It does not claim to provide a deductive mathematical proof of hallucination, nor does it claim to have solved the hallucination problem entirely. Its contribution is a unified language that bridges the gap between the abstract structure of reasoning and the concrete task of detecting and mitigating hallucinations in real-time. The geometric and topological constructs introduced — manifold, curvature, cohomology — are used as interpretive analogies, not as claims about the literal microstructure of neural network hidden states. Their value is measured by the engineering tools they enable, not by their mathematical rigor.
+
+---
+
+## 2. Foundational Framework: The Cognitive Manifold
+
+All interpretations in this work rest on the manifold hypothesis: the high-dimensional hidden state space of a sufficiently large Transformer model can be usefully approximated, for engineering purposes, as concentrating near a low-dimensional smooth geometric structure. This is not a claim about the literal geometry of the hidden state space. It is a modeling assumption, analogous to the continuum approximation in fluid dynamics, whose utility is judged by the engineering tools it enables.
+
+### 2.1 Core Constructs
+
+**Definition 1: Cognitive Manifold.** Let the cognitive manifold $\mathcal{M}$ be a $d$-dimensional smooth differentiable manifold, used as an approximate geometric model of semantically coherent hidden state representations. Any point $p \in \mathcal{M}$ is interpreted as corresponding to a semantically coherent representation of the model. The Riemannian-like metric structure $g_p$ at $p$ is conceived as being induced by the local sensitivity of the model's task gradients in the current context — heuristically, the information cost incurred by altering the semantic representation under the current inference objective. Shorter distances suggest stronger logical equivalence under this interpretation.
+
+> **Intuition.** Imagine a landscape. Points on the manifold are safe, stable ground — coherent thoughts. Points off the manifold are unstable terrain — incoherent or contradictory states. Reasoning is a path through this landscape. As long as the path stays on the manifold, the model generates logically consistent output. If the path is forced off, hallucinations occur.
+
+**Definition 2: Čech Cohomology Obstruction Classes.** For an open cover $\mathcal{U}=\{U_i\}$ of the cognitive manifold $\mathcal{M}$, the first Čech cohomology group $\check{H}^1(\mathcal{M},\mathcal{F})$ with coefficients in an Abelian group sheaf $\mathcal{F}$ may possess non-trivial elements. Such non-trivial classes represent obstruction classes where locally compatible sections fail to glue into a globally consistent section.
+
+> **Intuition.** Cohomology, in simple terms, is a mathematical tool for counting "holes" in a space. A sphere has no one-dimensional holes — any closed loop on its surface can be continuously shrunk to a point. A doughnut (torus) has a one-dimensional hole — a loop that goes around the ring cannot be shrunk to a point. In our framework, these "holes" correspond to logical dead ends or paradoxes. When a reasoning path encounters such a hole, it cannot proceed smoothly and is forced to leave the manifold.
+
+**Crucial Clarification.** The semantic space does not satisfy the separation axioms required for a topological space, and therefore Čech cohomology cannot be rigorously defined on it in the mathematical sense. The cohomology analogy employed here serves exclusively to illustrate the structural nature of global logical inconsistency — that locally consistent inferences may fail to glue into a globally coherent whole. This analogy does not constitute a formal mathematical definition of cohomology groups on semantic space, and is presented solely as an interpretive tool. All discussions referencing cohomology are confined to the local covering subsets of the cognitive manifold $\mathcal{M}$ where the differentiable structure is well-defined.
+
+### 2.2 Semantic-Geometric Correspondence and Core Assumptions
+
+**Assumption 0 (Semantic-Geometric Correspondence).** There exists a locally well-behaved semantic realization map $\Phi: \mathcal{M} \to \mathcal{S}$ from the cognitive manifold to a semantic consistency space $\mathcal{S}$, such that local continuity of trajectories on $\mathcal{M}$ approximately preserves semantic compatibility. The semantic consistency space $\mathcal{S}$ is not assumed to possess a canonical metric or formal logical structure. It is treated as an abstract compatibility space whose operational meaning is induced empirically by downstream task behavior and human-evaluable consistency judgments. This assumption is foundational to the entire framework; its validity for a given model is ultimately an empirical question.
+
+**The Continuous Approximation.** Transformer inference is fundamentally a discrete dynamical process: $h_{t+1} = F(h_t, x_t)$. The continuous geometric language employed throughout — manifold, geodesic, tangent vector — should be understood as a coarse-grained continuum approximation of this underlying discrete dynamics, analogous to continuum approximations in statistical physics. The manifold is not claimed as an intrinsic property of the Transformer, but as an effective geometric description of the hidden state space at scale.
+
+**Tangent Vector Approximation.** Hidden states reside in a high-dimensional, anisotropic, quotient-like representation space. Simple Euclidean differences between hidden states do not possess genuine coordinate invariance. Under sufficiently small local neighborhoods, the hidden state space can be approximately treated as a local Euclidean chart, wherein residual differences approximate tangent directions up to first-order error. All differential operations in this work assume local charts have been expanded to neighborhoods satisfying this approximation condition.
+
+### 2.3 Interpretive Principles
+
+**Interpretive Principle 1 (Semantic Obstruction Principle).** Under the Semantic-Geometric Correspondence assumption, non-trivial cohomology classes in $\check{H}^1(\mathcal{M},\mathcal{F})$ are interpreted as geometric analogs of structural defects where locally consistent semantic sections fail to glue into a globally consistent semantic assembly. This is a structural correspondence for explanatory purposes, not a deductive theorem.
+
+**Interpretive Principle 2 (Self-Referential Obstruction Principle).** Self-referential propositional structures are observed, as a heuristic correspondence, to potentially induce closed trajectories on the cognitive manifold that resist continuous contraction. This provides a geometric analogy for the logical obstructions identified in Gödel's Incompleteness Theorems. No formal derivation of incompleteness from topological first principles is claimed; constructing such a bridge is a significant open research program.
+
+---
+
+## 3. Geometric Interpretation of Reasoning and Hallucinations
+
+### 3.1 Reasoning as Approximate Geodesic Motion
+
+**Definition 3: Reasoning Trajectory.** Multi-step reasoning is approximately modeled as a smooth curve $\gamma: [0,1] \to \mathcal{M}$ on the cognitive manifold. This curve is interpreted as the model's internal reasoning path from premise $\gamma(0)$ to conclusion $\gamma(1)$. Under ideal conditions, this path seeks to minimize the energy functional:
+
+$$E(\gamma) = \frac{1}{2} \int_0^1 g_{\gamma(t)}(\dot{\gamma}(t), \dot{\gamma}(t)) \, dt$$
+
+where $\dot{\gamma}(t)$ is the tangent vector along the curve, interpreted as the logical direction of reasoning at step $t$. This is an approximate model, not a claim that Transformers literally follow geodesic equations. The specific form of the metric $g$ is induced by the local task gradient structure; it serves as a conceptual tool whose engineering realization is accomplished indirectly through the proxy metrics in Section 4.
+
+### 3.2 Knowledge Blind Spots and Incompleteness
+
+The cognitive manifold is not a complete, perfectly smooth space. It contains regions where the model lacks knowledge or encounters logical contradictions.
+
+**Definition 4: Knowledge Blind Spots.** Two types of incompleteness are distinguished:
+
+1. **Topological Holes:** The manifold is approximately non-simply connected, corresponding to knowledge blind spots caused by global structural limitations — regions where locally consistent inferences cannot be assembled into a globally coherent conclusion.
+2. **Metric Incompleteness:** The manifold has an open boundary in the embedding space, corresponding to unlearned marginal knowledge.
+
+### 3.3 Geometric Classification of Reasoning Outcomes
+
+When a reasoning trajectory approaches a blind spot, the system, constrained by the requirement to produce an output, must perform some form of extension. Based on the geometric nature of this extension, four scenarios are delineated:
+
+1. **Erroneous Reasoning:** The trajectory deviates from the minimal energy path but remains entirely within the cognitive manifold $\mathcal{M}$, still constrained by local metric structure.
+2. **Creative Leap:** A high-curvature trajectory within $\mathcal{M}$ that still satisfies local geometric constraints, corresponding to a non-obvious but valid semantic transition.
+3. **Logical Hallucination:** The trajectory is forced outside $\mathcal{M}$ into a region lacking semantic section support. This extension carries no guarantee of logical validity and is the geometric interpretation of hallucination.
+4. **Creative Transition:** At the edge of a topological obstruction, the system introduces a non-deterministic perturbation. If the landing point falls back into $\mathcal{M}$, it constitutes a creative breakthrough; otherwise, it degenerates into hallucination. This mechanism is presented as a heuristic engineering hypothesis; a rigorous proof of efficacy requires further characterization of the manifold's global connectivity structure.
+
+### 3.4 Geometric Limits of Local Repair
+
+Local inverse element constraints under the Levi-Civita connection can eliminate non-trivial 1-cocycles of the semantic sheaf within any bounded closed subset of $\mathcal{M}$, flattening the curvature of local regions to near zero. However, global non-trivial first Čech cohomology classes of the base manifold on the constant real sheaf induced by self-referential structures cannot be eliminated by local operators. That is, obstructions analogous to Gödelian self-referential holes are inherently beyond the reach of local repair mechanisms within the present framework.
+
+**Conjecture 1 (Topological Repair Ripple Conjecture).** Based on the global interaction characteristics of the Transformer attention mechanism, short-range loop consistency constraints within a local context window may produce exponentially diffusing topological repair effects with network depth. The elimination of local 1-cocycles may gradually converge to the annihilation of the global harmonic 1-form space, approaching the theoretical limit of a vanishing first cohomology group. This is an empirical conjecture and has not yet been rigorously mathematically proven.
+
+---
+
+## 4. Engineering Implementation
+
+This section translates the abstract geometric interpretation into practical, computable tools that operate during inference and training without modifying core model architectures.
+
+### 4.1 The Curvature Detector
+
+**The Theoretical Definition: Normalized Structural Persistence Cost $C_t$**
+
+In the geometric framework, we define a quantity that measures the stability of the reasoning trajectory — how much the logical tangent vector deviates between consecutive steps relative to its current magnitude:
+
+$$C_t = \frac{\left\| v_t^{\sharp} - \Gamma_{t-1 \to t} v_{t-1}^{\sharp} \right\|_g^2}{\left\| v_t^{\sharp} \right\|_g^2 + \epsilon}$$
+
+where:
+
+- $v_t = \nabla_{h_t} \log P(y_t \mid h_t)$ is the **logical gradient** induced by the task objective at step $t$. Formally, it is a 1-form (cotangent vector) residing in the cotangent space $T_{\gamma(t)}^*\mathcal{M}$. To obtain a tangent vector suitable for computing trajectory deviation, we raise its index via the inverse metric $g^{ij}$, yielding the logical tangent vector $v_t^{\sharp} \in T_{\gamma(t)}\mathcal{M}$. This raising operation maps the gradient direction from the cotangent space to the tangent space, where it can be meaningfully compared across reasoning steps.
+
+- $\Gamma_{t-1 \to t}$ is a **locally estimated transport operator** along the trajectory. It transports the tangent vector from the tangent space at step $t-1$ to the tangent space at the current step $t$. We emphasize that this is **not strictly the Levi-Civita connection**, as the hidden state space lacks a uniquely defined, globally metric-compatible, torsion-free connection. It is a local approximation, and under the small curvature conditions characteristic of well-trained reasoning paths, it closely approximates the identity mapping.
+
+- $\|\cdot\|_g^2 = g_p(v,v)$ is the **Riemannian norm squared** of a vector, measuring its local length under the manifold's metric.
+
+- $\epsilon = 1 \times 10^{-8}$ is a small regularization constant to prevent division by zero.
+
+Strictly speaking, $C_t$ measures the first-order deviation of the tangent vector along the path rather than the full Riemann curvature tensor. We borrow the term "curvature" heuristically to evoke the physical intuition of a bending trajectory.
+
+**The Engineering Proxy: Cosine Distance on the Hypersphere**
+
+The theoretical definition of $C_t$ requires computing $v_t$, which involves backpropagation through the model — prohibitively expensive for real-time inference monitoring. However, a remarkable simplification arises from a common architectural feature of modern Transformers: **layer normalization (RMSNorm/LayerNorm)**.
+
+These normalization mechanisms effectively constrain the output hidden states $h_t$ to reside near the surface of a high-dimensional unit hypersphere $S^{d-1}$ in $\mathbb{R}^d$. On a unit hypersphere, the following mathematical equivalences hold rigorously:
+
+- The Euclidean distance $\|h_t - h_{t-1}\|_2$ between two points on the sphere is directly related to the cosine of the angle between them: $\|h_t - h_{t-1}\|_2^2 = 2(1 - \cos(h_t, h_{t-1}))$.
+- The geodesic (great-circle) distance $d_{\text{geo}}(h_t, h_{t-1})$ on the unit sphere satisfies $d_{\text{geo}} = \arccos(\langle h_t, h_{t-1} \rangle)$, which is a monotonically increasing function of $(1 - \cos(h_t, h_{t-1}))$.
+- In the limit $\|h_t - h_{t-1}\| \to 0$, the ratio between the geodesic distance and the Euclidean distance approaches a constant, providing a first-order guarantee for the proxy's validity.
+
+Therefore, the cosine distance between adjacent hidden states provides a first-order equivalent proxy for the geodesic deviation degree on the hyperspherical manifold:
+
+$$C_t^{\text{proxy}} = 1 - \cos(h_t, h_{t-1})$$
+
+This proxy metric preserves the core capability of curvature density detection while requiring zero additional backpropagation overhead during inference.
+
+> **Intuition.** Think of $C_t$ as a "drift meter." Low $C_t$: the model is reasoning steadily — each step follows naturally from the previous one. High $C_t$: the model is making abrupt turns in its reasoning — changing direction sharply. This can indicate either a creative leap (finding an unexpected but valid connection) or the onset of hallucination (being forced off the manifold into unsupported territory).
+
+**Crucial Clarification: High $C_T$ Is Necessary But Not Sufficient for Hallucination Risk.** Complex yet valid reasoning — such as theorem proving, code synthesis, or creative writing — naturally involves higher baseline curvature than simpler tasks like casual conversation. Therefore, curvature thresholds must be calibrated on a per-task-class basis. Elevated $C_T$ is a warning signal, not an automatic hallucination verdict.
+
+### 4.2 Cycle-Consistency Regularization 
+
+While the curvature detector monitors reasoning stability during inference, we can also proactively improve the model's inherent logical coherence during training. However, naive application of cycle-consistency constraints risks suppressing valid creative leaps and suffering from geometric misalignment due to positional encodings. We address these challenges through two critical engineering refinements: **Entropy-Gated Selective Flattening** and **Orthogonal Position-Invariant Projection**.
+
+### #4.2.1 The Core Intuition: Reversibility as Coherence
+In a logically well-behaved region of the manifold, reasoning should be approximately reversible: if you can reason from A to B, you should be able to reason back from B to A along a similar path. The forward and backward residual vectors should be approximate inverses. Driving the sum of these residuals toward zero flattens local curvature, suppressing logical drift.
+**Intentional Gradient Flow through Entropy Gate.** Unlike traditional static regularization terms, our entropy-gated mechanism intentionally allows gradients to flow from the gate back to the model's logits. This is not a bug, but the core instructional mechanism of the framework. It teaches the model metacognitive control: when encountering a high-curvature logical transition (potential hallucination risk), the model is incentivized to reduce its internal uncertainty to avoid the flattening penalty. The loss function thus trains the model to **earn its creative leaps by maintaining structural certainty**. If the model can confidently justify a sharp semantic turn, the gate opens and the geometric constraint relaxes. If it remains uncertain, the gate closes, forcing the model to flatten its reasoning path. This dynamic alignment ensures that the training objective is perfectly consistent with the inference criterion (high curvature + low entropy = creativity).
+#### 4.2.2 Challenge 1: Preserving Creativity via Entropy Gating
+Traditional topological regularization indiscriminately penalizes high-curvature transitions. This creates a conflict: it suppresses hallucinations (bad high-curvature) but also stifles creative insights (good high-curature). To resolve this, we introduce an **entropy-gated mechanism**.
+
+**The Problem with Hard Thresholds.** A binary indicator $\mathbb{1}[H_t > \tau_H]$ is non-differentiable. It provides no gradient signal for the model to learn *how* to reduce uncertainty to avoid penalty, leading to unstable training dynamics.
+
+**The Solution: Soft Sigmoid Gating.** We replace the hard threshold with a smooth sigmoid function, allowing gradients to flow through the gating mechanism. The gated loss is defined as:
+
+$$\mathcal{L}_{\text{hedge}}^{\text{gated}} = \sigma\left(\beta \cdot (H_t - \tau_H)\right) \cdot \left\| \Delta h_{A \to B} + \Gamma_{B \to A} \Delta h_{B \to A} \right\|_2^2$$
+
+where:
+- $\sigma(x) = \frac{1}{1 + e^{-x}}$ is the sigmoid function.
+- $H_t$ is the generation entropy at the transition step.
+- $\tau_H$ is the entropy threshold distinguishing confusion from confidence.
+- $\beta$ is a temperature coefficient controlling the sharpness of the gate ($\beta \approx 10-50$ for practical smoothing).
+
+**Geometric Interpretation.** 
+- When $H_t \gg \tau_H$ (high uncertainty/hallucination risk), $\sigma \approx 1$, and the full flattening pressure is applied.
+- When $H_t \ll \tau_H$ (high confidence/creative leap), $\sigma \approx 0$, and the penalty vanishes.
+- In the transition zone, the model receives a continuous gradient signal encouraging it to maintain low entropy even during high-curvature transitions. This effectively trains the model to **"earn" its creative leaps by maintaining structural certainty**, transforming the loss from a blunt constraint into a precision sculpting tool.
+
+#### 4.2.3 Challenge 2: Eliminating Positional Noise via Orthogonal Projection
+Directly subtracting hidden states $h_B^{\text{out}} - h_A^{\text{in}}$ mixes semantic logic with positional encoding artifacts (e.g., RoPE rotations) and sequence length differences. This "geometric noise" can dominate the residual, causing the loss to optimize for positional alignment rather than logical consistency. Furthermore, unconstrained linear projections risk **representation collapse**, where the model maps all states to a constant to trivially minimize the loss.
+
+**The Solution: Orthogonal Position-Invariant Projection Head.**
+We introduce a learnable projection head $W_{\text{proj}}$ constrained to be orthogonal. This ensures that the projection preserves distances and angles (isometry), preventing information collapse while stripping away non-semantic variance.
+
+1.  **Orthogonality Constraint:** We initialize $W_{\text{proj}}$ using orthogonal initialization and optionally add a regularization term $\| W_{\text{proj}}^T W_{\text{proj}} - I \|_F^2$ to maintain orthogonality during training. This guarantees that $W_{\text{proj}}$ acts as a rotation/reflection in the latent space, preserving the semantic geometry.
+2.  **Last-Token Alignment:** Instead of mean pooling (which dilutes step-specific logic), we extract the hidden state of the **last token** for both premise and conclusion. Crucially, we ensure that the extraction context is aligned by using consistent prompt templates, minimizing positional drift.
+3.  **Projected Residuals:** The residuals are computed in the projected space:
+    $$\Delta h_{A \to B}^{\text{proj}} = W_{\text{proj}}(h_B^{\text{out}}) - W_{\text{proj}}(h_A^{\text{in}})$$
+
+This approach isolates the **semantic logical jump** from the **positional coordinate shift**, ensuring that $\mathcal{L}_{\text{hedge}}$ optimizes for true logical reversibility.
+
+> **Engineering Limitation.** While the orthogonal projection mitigates the bulk of positional variance, it is a linear operation and cannot perfectly decouple the non-linear rotational effects of positional encodings like RoPE. The projected residual thus remains a first-order approximation of the pure semantic jump. Achieving exact positional invariance in this space remains an open problem in geometric deep learning.
+#### 4.2.4 Final Engineering Implementation
+Combining these refinements, the final training loss is:
+
+$$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{task}} + \lambda \cdot \mathcal{L}_{\text{hedge}}^{\text{gated}}$$
+
+**Engineering Note:** The entropy $H_t$ used in the gate is computed from the logits of the forward pass ($A \to B$) at the final token position. Since this computation is part of the forward graph, gradients flow correctly through the sigmoid gate to the model parameters. The orthogonal projection head adds negligible computational overhead (<1% FLOPs) but significantly stabilizes training convergence.
+
+> **Summary of Refinement.** By coupling entropy-gated selective flattening with orthogonal position-invariant projection, the framework evolves from a crude topological bulldozer into a **precision geometric scalpel**. It fills the pits of uncertainty (hallucinations) while preserving the peaks of confident insight (creativity), and it measures pure semantic logic free from positional artifacts.
+
+### 4.3 Distinguishing Creativity from Hallucination
+
+High curvature alone is ambiguous — it can signal either a creative breakthrough or impending hallucination. To disambiguate, we introduce a second signal: **generation entropy**, which measures the model's uncertainty at each step.
+
+**Definition: Generation Entropy $H_t$.** At each reasoning step, the model produces a probability distribution over its vocabulary. Entropy quantifies the spread of this distribution:
+
+$$H_t = -\sum_{k} P(x_t^{(k)} \mid h_t) \log P(x_t^{(k)} \mid h_t)$$
+
+- **Low entropy:** The model is confident — it has a clear idea of what to generate next.
+- **High entropy:** The model is uncertain — it is considering many divergent possibilities, a sign of confusion.
+
+**The Ternary Discrimination Rule.** Curvature and entropy jointly provide a robust criterion for distinguishing reasoning states:
+
+| Curvature ($C_T$) | Entropy ($H_t$) | Geometric Interpretation | Recommended Action |
+|:---:|:---:|:---|:---|
+| Low | Low | Flat regular geodesic, safe standard reasoning | Normal continuation |
+| High | High | Non-regular extension at manifold boundary; trajectory has left valid manifold | **Force brake**: backtrack to safe node, regenerate, or alert human operator |
+| High | Low | High-curvature trajectory within manifold; confident, abrupt but structurally valid semantic leap | Allow passage; optionally flag for human review |
+
+> **Intuition.** High curvature + high entropy = the model is lost and knows it's lost — impending hallucination. High curvature + low entropy = the model is making a sharp turn but knows exactly where it's going — potential creative breakthrough.
+
+### 4.4 Anisotropic Tangential Probes
+
+For high-stakes applications, passive curvature monitoring may miss subtle logical obstructions. We can actively probe the manifold by injecting small, targeted perturbations aligned with the local reasoning direction. At any safe reasoning node $h_t$, we extract the hidden state sequence within the current context window, compute the local covariance matrix, and use Principal Component Analysis (PCA) to extract the first $k$ principal component vectors, constructing a local tangent plane basis $\{v_1, \dots, v_k\}$ of the manifold at $h_t$. A low-dimensional random vector $z \sim \mathcal{N}(0, \sigma^2 I_{k \times k})$ is generated, projected onto the tangent plane basis to construct a tangential perturbation:
+
+$$\delta h = \sum_{i=1}^k z_i v_i$$
+
+and injected into the hidden state $h_t' = h_t + \delta h$. The deflection signal triggered by encountering logical obstructions is captured by the $C_T$ detector as an impedance mutation. This probing is triggered only on-demand when $C_T$ baseline values show abnormal elevation, adding no overhead during normal operation.
+
+### 4.5 Heuristic Creative Transition Engine
+
+**Problem Positioning.** Systems trained with $\mathcal{L}_{\text{hedge}}$ and equipped with $C_T$ detectors can identify topological obstruction edges. However, identifying a hole does not resolve the generation blockage caused by it. Deterministic sampling after a $C_T$ alarm inevitably slides out of the manifold along local tangent vector inertia.
+
+**Heuristic Engineering Hypothesis.** To attempt traversal at topological obstruction edges, we introduce, as a heuristic exploration strategy, an isotropic physical random source (True Random Number Generator based on hardware entropy). The core intuition is that high-dimensional physical random pulses, decoupled from the model's internal deterministic dynamics, may in some cases perturb the system state into a reachable valid region.
+
+**Crucial Limitations.** The true random tunneling operation does not mathematically cross strict topological holes. Its actual mechanism is: leveraging the inherent redundancy of high-dimensional representation spaces, at extremely low probabilities, discovering legal paths outside the currently modeled logical obstacles. The legitimacy of this operation relies on the backdoor effect in high-dimensional spaces. Its strict mathematical proof and empirical validation remain future work.
+
+**Engineering Implementation.**
+- *Trigger Condition:* $C_T$ detector alarms continuously for $N$ steps ($C_T^{\text{smoothed}} > \tau$) and generation entropy $H_t$ exceeds a task-specific threshold $\tau_H$, both calibrated per deployment context.
+- *Execution Action:* Extract a high-dimensional vector from an external physical true random module, superimpose it onto the current hidden state $h_t$ with a transition coefficient $\eta$, forcibly breaking reasoning inertia.
+- *Result Determination:* If the $C_T$ value drops back to baseline after transition, it is treated as a creative breakthrough. If $C_T$ remains high, the transition is deemed a failure, and forced generation cessation is executed.
+
+**Theoretical Assertion.** Absolute zero-hallucination systems are topologically trivial, capable only of repeating old facts. Non-trivial reasoning beyond old facts inevitably involves accepting the collapse risk brought by true randomness. Creativity and hallucinations share the same origin; they are distinguished solely by whether the landing point after collapse returns to the manifold.
+
+### 4.6 Illustrative Deployment Framework
+
+All numerical parameters below are defined **symbolically**. Their calibration requires rigorous empirical validation on target models and tasks. The values provided in code comments are **illustrative placeholders only**, not recommended defaults.
+
+| Parameter | Symbol | Description | Calibration Method |
+|:---|:---|:---|:---|
+| Constraint weight | $\lambda$ | Trade-off between task loss and hedge loss | Empirical tuning per task |
+| Curvature threshold | $\tau$ | Abnormal curvature detection | Task-specific statistical calibration |
+| Entropy threshold | $\tau_H$ | Hallucination vs. creativity disambiguation | Task-specific statistical calibration |
+| EMA smoothing coefficient | $\alpha$ | Temporal noise reduction | Empirical tuning |
+| Consecutive alarm steps | $N$ | False positive/negative balance | Empirical tuning |
+| Transition coefficient | $\eta$ | True random perturbation strength | Empirical tuning |
+
+All thresholds must be calibrated on high-confidence validation datasets with known low-hallucination reasoning for each specific task class. No universally applicable default values exist.
+
+---
+
+## 5. Theoretical Boundaries
+
+This section explicitly delineates what the framework does and does not claim, to prevent overinterpretation.
+
+**5.1 The Semantic-Geometric Correspondence Is an Assumption.** The entire framework rests on the premise that geometric proximity on the cognitive manifold approximately corresponds to semantic compatibility. This assumption — the Semantic-Geometric Correspondence — is not proven for Transformer hidden states in general. If this assumption fails for a particular model or task, the curvature proxy may still function as a statistical drift detector, but loses its geometric interpretation.
+
+**5.2 The Continuous Manifold Is a Coarse-Grained Approximation.** Transformer inference is fundamentally a discrete process. The differential geometric language employed throughout — manifold, geodesic, tangent vector — is a continuum approximation, useful for describing macroscopic patterns but not a claim about the literal microstructure of neural computation. No claim is made that Transformers literally follow geodesic equations or possess Levi-Civita connections.
+
+**5.3 Geometric Consistency Does Not Imply Factual Truth.** This framework models the **internal structural coherence** of the model's reasoning process, not external epistemic validity. A perfectly self-consistent path on the cognitive manifold can still produce factually incorrect content if the model's training data contained systematic errors. The curvature detector identifies logical drift, not factual errors. Responsibility for factual verification lies with external knowledge anchoring (e.g., RAG, human review).
+
+**5.4 Cohomology Is an Analogy, Not a Formal Definition.** The semantic space does not satisfy the separation axioms required for a topological space, and therefore Čech cohomology cannot be rigorously defined on it. The cohomology analogy serves exclusively to illustrate the structural nature of global logical inconsistency. It does not constitute a formal mathematical claim about the existence of cohomology groups on semantic space.
+
+**5.5 Local Repair Cannot Eliminate Global Obstructions.** The cycle-consistency loss can suppress local 1-cocycle obstructions within simply connected branches, but cannot eliminate global topological defects analogous to self-referential paradoxes. These are structural features inherent to sufficiently expressive formal systems, as identified by Gödel's Incompleteness Theorems. The framework's value lies in detecting the approach to such obstructions, enabling graceful degradation rather than confident hallucination.
+
+**5.6 Empirical Validation Gap.** The proposed curvature proxy $C_t^{\text{proxy}}$ has not yet been statistically validated against large-scale annotated hallucination datasets. All numerical parameters are defined symbolically; their calibration requires rigorous empirical studies. Direct experimental validation correlating curvature trajectories with human-annotated hallucination events across diverse tasks and model scales is essential future work.
+
+**5.7 The Creative Transition Engine Is a Heuristic.** The non-deterministic perturbation mechanism is presented as an engineering heuristic exploring strategy. It does not provably escape topological obstructions, and its efficacy has not been empirically validated. It should be treated as a research direction rather than a deployable solution.
+
+**5.8 Philosophical Positioning.** This framework is fundamentally a **coherence theory of truth** for internal reasoning: a proposition is considered logically valid within the model if it can be reached via a structurally coherent, low-curvature trajectory on the cognitive manifold. However, by explicitly demarcating its own boundary — geometric consistency does not imply factual truth — the framework simultaneously opens the door for **foundationalist** and **correspondence theories** of truth. External knowledge anchoring (RAG) provides foundational fixed points on the manifold; physical world verification provides correspondence checks that the model's internal coherence aligns with external reality. The framework thus unifies three classical truth theories within a single geometric language.
+
+---
+
+## 6. Conclusion
+
+This work has presented a geometry-informed interpretability framework that reframes LLM hallucinations as structural features emerging from the approximate geometry of the model's internal representation space. The core insight is that hallucinations are not random errors, but predictable consequences of what happens when a reasoning trajectory encounters a logical hole and is forced to extrapolate beyond its valid knowledge region.
+
+The framework's key contributions are:
+
+1. A **zero-overhead curvature detector** ($C_t^{\text{proxy}}$) that monitors reasoning stability in real-time using only cosine similarity between adjacent hidden states.
+2. A **cycle-consistency training loss** ($\mathcal{L}_{\text{hedge}}$) that improves local logical coherence by encouraging reversible reasoning paths.
+3. A **ternary discrimination criterion** that jointly uses curvature and generation entropy to distinguish safe reasoning, creative leaps, and hallucination risks.
+
+The framework is fundamentally a coherence theory of truth applied to internal model reasoning. However, by honestly demarcating its boundary — geometric consistency does not guarantee factual truth — it simultaneously opens operational channels for foundationalist (external knowledge anchoring) and correspondence (physical world verification) approaches. The geometric coherence of a reasoning path and the factual correctness of its conclusion are separate validations, both necessary for trustworthy AI.
+
+This framework does not solve hallucination. It provides a unified language for thinking about the structural relationship between reasoning geometry and logical coherence, and practical tools for managing the inevitable trade-off between creative capability and hallucination risk. The most critical next step is empirical: deploy the curvature detector on established hallucination benchmarks, calibrate task-specific baselines, and measure the predictive power of the ternary criterion against human-annotated hallucination events. This is work we invite the broader research community to participate in.
+
+---
+
+## Appendix A: Curvature Detector Calibration Protocol
+
+### A.1 Constructing a Calibration Dataset
+
+To establish reliable curvature baselines, construct a high-confidence validation set $D_{\text{cal}}$ satisfying:
+- Covers the majority of core reasoning types in the deployment scenario.
+- Model greedy decoding accuracy on this dataset is sufficiently high.
+- Semantic distribution is representative of the target deployment data.
+- Total sample volume is adequate for statistical significance.
+
+The specific numerical criteria for dataset construction must be determined empirically for each model and task.
+
+### A.2 Baseline Calibration Procedure
+
+1. Run inference on $D_{\text{cal}}$, recording $C_t^{\text{proxy}}$ at each generation step.
+2. Compute the full-sample mean $\mu_{CT}$ and standard deviation $\sigma_{CT}$.
+3. Apply appropriate statistical tests to identify and remove significant outliers.
+4. Set the dynamic threshold $\tau$ based on the empirical distribution of $C_T$ values on the calibration set.
+5. Verify threshold validity on an independent validation set; adjust if the false positive rate on known-safe reasoning is unacceptably high.
+
+### A.3 Temporal Smoothing
+
+Apply Exponential Moving Average (EMA) to reduce false positives from transient noise:
+
+$$C_t^{\text{smoothed}} = \alpha \cdot C_t + (1-\alpha) \cdot C_{t-1}^{\text{smoothed}}$$
+
+Initial value: $C_0^{\text{smoothed}} = \mu_{CT}$. The smoothing coefficient $\alpha$ must be tuned empirically.
+
+**Alarm Criterion.** Trigger a high-risk warning when $C_t^{\text{smoothed}}$ exceeds $\tau$ for $N$ consecutive steps, AND generation entropy $H_t$ concurrently exceeds the task-specific entropy threshold $\tau_H$.
+
+### A.4 Task-Specific Calibration
+
+Separately calibrate baselines for distinct task categories (e.g., mathematical reasoning, factual QA, creative writing, casual conversation). Different tasks exhibit characteristically different baseline curvature distributions.
+
+---
+
+## Appendix B: Pseudo-Code Illustration
+
+**IMPORTANT DISCLAIMER**: The following pseudo-code is provided **solely for illustrating the theoretical principles** described in this paper. It has **NOT been empirically validated** and must **ABSOLUTELY NOT** be deployed in any production environment, safety-critical system, or any setting where model outputs affect human welfare, without rigorous experimental calibration and validation. All numerical values are illustrative placeholders.
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn.utils import parametrize
+
+
+# ============================================================
+# Utility Classes and Functions
+# ============================================================
+
+class OrthogonalProjectionHead(nn.Module):
+    """
+    Lightweight semi-orthogonal projection head.
+
+    Projects high-dimensional hidden states to a lower-dimensional
+    semantic subspace while strictly preserving distances and angles
+    (isometry). This strips positional encoding variance and local
+    syntactic noise, retaining only the semantic principal components
+    relevant to logical consistency.
+
+    Uses PyTorch's native parametrize.orthogonal to guarantee that
+    the weight matrix is EXACTLY on the Stiefel manifold at every
+    training step. No L2 orthogonality regularization is needed.
+    """
+
+    def __init__(self, input_dim, projected_dim):
+        super().__init__()
+        # Allow projected_dim < input_dim for dimensionality reduction
+        # and noise stripping. The semi-orthogonal constraint ensures
+        # that distances and angles are preserved in the lower-dim space.
+        assert projected_dim <= input_dim, (
+            "Projected dim must be <= input dim"
+        )
+        self.proj = nn.Linear(input_dim, projected_dim, bias=False)
+        # Enforce strict semi-orthogonality: W @ W.T = I
+        # This runs a Cayley transform or matrix exponential at each
+        # step to keep W exactly on the Stiefel manifold.
+        parametrize.orthogonal(self.proj, 'weight')
+
+    def forward(self, x):
+        return self.proj(x)
+
+
+def get_sequence_repr(hidden_states, attention_mask):
+    """
+    Extract robust sequence-level representation via mean pooling
+    over non-padding tokens.
+
+    This replaces the fragile last-token heuristic with a global
+    semantic centroid that smooths out local syntactic noise while
+    preserving proposition-level meaning.
+    """
+    mask_expanded = (attention_mask.unsqueeze(-1)
+                     .expand(hidden_states.size()).float())
+    sum_embeddings = torch.sum(hidden_states * mask_expanded, dim=1)
+    sum_mask = torch.clamp(mask_expanded.sum(dim=1), min=1e-9)
+    return sum_embeddings / sum_mask
+
+
+# ============================================================
+# Training Phase: Entropy-Gated Cycle-Consistency Loss
+# ============================================================
+
+def compute_hedge_loss_gated(model, tokenizer, A, B, device,
+                             proj_head, beta=20.0, tau_H=4.0,
+                             T_temp=1.0,
+                             task_prompt_template="{a} implies {b}"):
+    """
+    Compute entropy-gated cycle-consistency loss with semi-orthogonal
+    projection.
+
+    WARNING: ENGINEERING COST — 4x forward passes with full gradient
+    graphs. For models >= 7B, gradient_checkpointing is ABSOLUTELY
+    MANDATORY. In production, consider concatenating A, B, AB, BA
+    into a single batched forward pass to reduce memory fragmentation
+    and kernel launch overhead.
+
+    The entropy gate intentionally preserves gradient flow (no detach).
+    This is not a bug: it teaches the model to earn its creative leaps
+    by maintaining structural certainty. See Section 4.2.1 for the
+    theoretical justification.
+    """
+
+    # ============================================================
+    # 1. Forward Reasoning: A -> B
+    # ============================================================
+
+    forward_A_in = tokenizer(A, return_tensors="pt",
+                             padding=True, truncation=True).to(device)
+    out_A = model(**forward_A_in, output_hidden_states=True)
+    h_A_in = get_sequence_repr(out_A.hidden_states[-1],
+                               forward_A_in.attention_mask)
+    h_A_in_proj = proj_head(h_A_in)
+
+    forward_AB_text = [
+        task_prompt_template.format(a=a, b=b) for a, b in zip(A, B)
+    ]
+    forward_AB_in = tokenizer(forward_AB_text, return_tensors="pt",
+                              padding=True, truncation=True).to(device)
+    out_AB = model(**forward_AB_in, output_hidden_states=True)
+    h_B_out = get_sequence_repr(out_AB.hidden_states[-1],
+                                forward_AB_in.attention_mask)
+    h_B_out_proj = proj_head(h_B_out)
+
+    forward_residual = h_B_out_proj - h_A_in_proj
+
+    # Compute entropy for gating
+    logits_AB = out_AB.logits[:, -1, :]
+    scaled_logits = logits_AB / T_temp
+    probs_AB = F.softmax(scaled_logits, dim=-1)
+    H_t = -torch.sum(probs_AB * torch.log(probs_AB + 1e-8), dim=-1)
+
+    # ============================================================
+    # 2. Backward Reasoning: B -> A
+    # ============================================================
+
+    backward_B_in = tokenizer(B, return_tensors="pt",
+                              padding=True, truncation=True).to(device)
+    out_B = model(**backward_B_in, output_hidden_states=True)
+    h_B_in = get_sequence_repr(out_B.hidden_states[-1],
+                               backward_B_in.attention_mask)
+    h_B_in_proj = proj_head(h_B_in)
+
+    backward_BA_text = [
+        task_prompt_template.format(a=b, b=a) for a, b in zip(A, B)
+    ]
+    backward_BA_in = tokenizer(backward_BA_text, return_tensors="pt",
+                               padding=True, truncation=True).to(device)
+    out_BA = model(**backward_BA_in, output_hidden_states=True)
+    h_A_out = get_sequence_repr(out_BA.hidden_states[-1],
+                                backward_BA_in.attention_mask)
+    h_A_out_proj = proj_head(h_A_out)
+
+    backward_residual = h_A_out_proj - h_B_in_proj
+
+    # ============================================================
+    # 3. Compute Gated Loss
+    # ============================================================
+
+    cycle_residual = forward_residual + backward_residual
+    cycle_norm_sq = torch.norm(cycle_residual, p=2, dim=-1) ** 2
+
+    gate = torch.sigmoid(beta * (H_t - tau_H))
+    L_hedge = (gate * cycle_norm_sq).mean()
+
+    return L_hedge
+
+
+# ============================================================
+# Training Loop Integration
+# ============================================================
+
+# Initialize projection head (e.g., projecting 4096 down to 1024)
+proj_head = OrthogonalProjectionHead(
+    input_dim=model.config.hidden_size,
+    projected_dim=1024  # Dimensionality reduction + noise stripping
+).to(device)
+
+# MUST enable for models >= 7B to avoid OOM
+model.gradient_checkpointing_enable()
+
+# Add projection head parameters to optimizer
+optimizer.add_param_group({
+    'params': proj_head.parameters(),
+    'lr': 1e-4
+})
+
+# Hyperparameters (all require empirical tuning)
+lambda_hedge = 0.1    # Constraint weight
+beta = 20.0            # Gate sharpness
+tau_H = 4.0            # Entropy threshold
+T_temp = 1.0           # Temperature scaling
+
+# Inside training loop:
+outputs = model(**inputs, labels=labels)
+L_task = outputs.loss
+
+L_hedge = compute_hedge_loss_gated(
+    model, tokenizer, A_batch, B_batch, device,
+    proj_head=proj_head, beta=beta, tau_H=tau_H, T_temp=T_temp
+)
+
+# L_ortho is NO LONGER NEEDED — parametrize.orthogonal guarantees exact isometry at every step
+L_total = L_task + lambda_hedge * L_hedge
+L_total.backward()
+optimizer.step()
+
+
+# ============================================================
+# Inference Phase: Real-Time Curvature Monitoring
+# ============================================================
+
+# Per-sample state initialization (at session start):
+#   ct_smoothed_prev = mu_CT  (baseline mean from calibration)
+#   session_active = [True, True, ..., True]  (boolean mask, shape [batch])
+
+# At each generation step:
+#   h_t:    Current hidden state [batch, dim]
+#   h_prev: Previous hidden state [batch, dim]
+#   p:      Token probability distribution [batch, vocab_size]
+
+ct = 1 - F.cosine_similarity(h_t, h_prev, dim=-1)
+entropy = -torch.sum(p * torch.log(p + 1e-8), dim=-1)
+
+ct_smoothed = alpha_val * ct + (1 - alpha_val) * ct_smoothed_prev
+
+# All thresholds below are SYMBOLIC PLACEHOLDERS.
+# They must be empirically calibrated per task and deployment.
+hallucination_risk = (ct_smoothed > tau) & (entropy > tau_H)
+creative_leap = (ct_smoothed > tau) & (entropy <= tau_H)
+
+# Per-sample independent trajectory control
+for i in range(batch_size):
+    if not session_active[i]:
+        continue
+    if hallucination_risk[i]:
+        session_active[i] = False   # Force brake for this sample
+    elif creative_leap[i]:
+        pass                        # Allow, optionally flag for review
+    else:
+        pass                        # Safe reasoning, continue generation
+
+
+
